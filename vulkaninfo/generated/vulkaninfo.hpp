@@ -27,9 +27,9 @@
 #include "vulkaninfo.h"
 #include "outputprinter.h"
 
-std::ostream &operator<<(std::ostream &o, VkConformanceVersion &c) {
-    return o << std::to_string(c.major) << "." << std::to_string(c.minor) << "." << std::to_string(c.subminor) << "."
-             << std::to_string(c.patch);
+void DumpVkConformanceVersion(Printer &p, std::string name, VkConformanceVersion &c, int width = 0) {
+    p.PrintKeyString("conformanceVersion", std::to_string(c.major)+ "." + std::to_string(c.minor) + "." + std::to_string(c.subminor) + "."
+             + std::to_string(c.patch), width);
 }
 
 template <typename T>
@@ -41,7 +41,7 @@ std::string to_hex_str(T i) {
 
 template <typename T>
 std::string to_hex_str(Printer &p, T i) {
-    if (p.Type() == OutputType::json)
+    if (p.Type() == OutputType::json || p.Type() == OutputType::json_full)
         return std::to_string(i);
     else
         return to_hex_str(i);
@@ -87,9 +87,8 @@ static const char *VkResultString(VkResult value) {
 void DumpVkResult(Printer &p, std::string name, VkResult value, int width = 0) {
     if (p.Type() == OutputType::json) {
         p.PrintKeyValue(name, value, width);
-        return;
     } else {
-        p.PrintKeyValue(name, VkResultString(value), width);
+        p.PrintKeyString(name, VkResultString(value), width);
     }
 }
 static const char *VkFormatString(VkFormat value) {
@@ -341,9 +340,8 @@ static const char *VkFormatString(VkFormat value) {
 void DumpVkFormat(Printer &p, std::string name, VkFormat value, int width = 0) {
     if (p.Type() == OutputType::json) {
         p.PrintKeyValue(name, value, width);
-        return;
     } else {
-        p.PrintKeyValue(name, VkFormatString(value), width);
+        p.PrintKeyString(name, VkFormatString(value), width);
     }
 }
 static const char *VkImageTilingString(VkImageTiling value) {
@@ -357,9 +355,8 @@ static const char *VkImageTilingString(VkImageTiling value) {
 void DumpVkImageTiling(Printer &p, std::string name, VkImageTiling value, int width = 0) {
     if (p.Type() == OutputType::json) {
         p.PrintKeyValue(name, value, width);
-        return;
     } else {
-        p.PrintKeyValue(name, VkImageTilingString(value), width);
+        p.PrintKeyString(name, VkImageTilingString(value), width);
     }
 }
 static const char *VkPhysicalDeviceTypeString(VkPhysicalDeviceType value) {
@@ -375,9 +372,8 @@ static const char *VkPhysicalDeviceTypeString(VkPhysicalDeviceType value) {
 void DumpVkPhysicalDeviceType(Printer &p, std::string name, VkPhysicalDeviceType value, int width = 0) {
     if (p.Type() == OutputType::json) {
         p.PrintKeyValue(name, value, width);
-        return;
     } else {
-        p.PrintKeyValue(name, VkPhysicalDeviceTypeString(value), width);
+        p.PrintKeyString(name, VkPhysicalDeviceTypeString(value), width);
     }
 }
 static const char *VkPointClippingBehaviorString(VkPointClippingBehavior value) {
@@ -390,9 +386,8 @@ static const char *VkPointClippingBehaviorString(VkPointClippingBehavior value) 
 void DumpVkPointClippingBehavior(Printer &p, std::string name, VkPointClippingBehavior value, int width = 0) {
     if (p.Type() == OutputType::json) {
         p.PrintKeyValue(name, value, width);
-        return;
     } else {
-        p.PrintKeyValue(name, VkPointClippingBehaviorString(value), width);
+        p.PrintKeyString(name, VkPointClippingBehaviorString(value), width);
     }
 }
 static const char *VkDriverIdString(VkDriverId value) {
@@ -415,9 +410,8 @@ static const char *VkDriverIdString(VkDriverId value) {
 void DumpVkDriverId(Printer &p, std::string name, VkDriverId value, int width = 0) {
     if (p.Type() == OutputType::json) {
         p.PrintKeyValue(name, value, width);
-        return;
     } else {
-        p.PrintKeyValue(name, VkDriverIdString(value), width);
+        p.PrintKeyString(name, VkDriverIdString(value), width);
     }
 }
 static const char *VkShaderFloatControlsIndependenceString(VkShaderFloatControlsIndependence value) {
@@ -431,9 +425,8 @@ static const char *VkShaderFloatControlsIndependenceString(VkShaderFloatControls
 void DumpVkShaderFloatControlsIndependence(Printer &p, std::string name, VkShaderFloatControlsIndependence value, int width = 0) {
     if (p.Type() == OutputType::json) {
         p.PrintKeyValue(name, value, width);
-        return;
     } else {
-        p.PrintKeyValue(name, VkShaderFloatControlsIndependenceString(value), width);
+        p.PrintKeyString(name, VkShaderFloatControlsIndependenceString(value), width);
     }
 }
 static const char *VkColorSpaceKHRString(VkColorSpaceKHR value) {
@@ -460,9 +453,8 @@ static const char *VkColorSpaceKHRString(VkColorSpaceKHR value) {
 void DumpVkColorSpaceKHR(Printer &p, std::string name, VkColorSpaceKHR value, int width = 0) {
     if (p.Type() == OutputType::json) {
         p.PrintKeyValue(name, value, width);
-        return;
     } else {
-        p.PrintKeyValue(name, VkColorSpaceKHRString(value), width);
+        p.PrintKeyString(name, VkColorSpaceKHRString(value), width);
     }
 }
 static const char *VkPresentModeKHRString(VkPresentModeKHR value) {
@@ -479,98 +471,109 @@ static const char *VkPresentModeKHRString(VkPresentModeKHR value) {
 void DumpVkPresentModeKHR(Printer &p, std::string name, VkPresentModeKHR value, int width = 0) {
     if (p.Type() == OutputType::json) {
         p.PrintKeyValue(name, value, width);
-        return;
     } else {
-        p.PrintKeyValue(name, VkPresentModeKHRString(value), width);
+        p.PrintKeyString(name, VkPresentModeKHRString(value), width);
     }
 }
-void DumpVkFormatFeatureFlags(Printer &p, std::string name, VkFormatFeatureFlagBits value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (1 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_SAMPLED_IMAGE_BIT");
-    if (2 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_STORAGE_IMAGE_BIT");
-    if (4 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT");
-    if (8 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT");
-    if (16 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_BIT");
-    if (32 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_ATOMIC_BIT");
-    if (64 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_VERTEX_BUFFER_BIT");
-    if (128 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_COLOR_ATTACHMENT_BIT");
-    if (256 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT");
-    if (512 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT");
-    if (1024 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_BLIT_SRC_BIT");
-    if (2048 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_BLIT_DST_BIT");
-    if (4096 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT");
-    if (16384 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_TRANSFER_SRC_BIT");
-    if (32768 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_TRANSFER_DST_BIT");
-    if (131072 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT");
-    if (262144 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT");
-    if (524288 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT");
-    if (1048576 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_BIT");
-    if (2097152 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT");
-    if (4194304 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_DISJOINT_BIT");
-    if (8388608 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT");
-    if (65536 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_MINMAX_BIT");
-    if (8192 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_IMG");
-    if (16777216 & value) p.SetAsType().PrintElement("FORMAT_FEATURE_FRAGMENT_DENSITY_MAP_BIT_EXT");
+std::vector<const char *>VkFormatFeatureFlagBitsGetStrings(VkFormatFeatureFlagBits value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("FORMAT_FEATURE_SAMPLED_IMAGE_BIT");
+    if (2 & value) strings.push_back("FORMAT_FEATURE_STORAGE_IMAGE_BIT");
+    if (4 & value) strings.push_back("FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT");
+    if (8 & value) strings.push_back("FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT");
+    if (16 & value) strings.push_back("FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_BIT");
+    if (32 & value) strings.push_back("FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_ATOMIC_BIT");
+    if (64 & value) strings.push_back("FORMAT_FEATURE_VERTEX_BUFFER_BIT");
+    if (128 & value) strings.push_back("FORMAT_FEATURE_COLOR_ATTACHMENT_BIT");
+    if (256 & value) strings.push_back("FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT");
+    if (512 & value) strings.push_back("FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT");
+    if (1024 & value) strings.push_back("FORMAT_FEATURE_BLIT_SRC_BIT");
+    if (2048 & value) strings.push_back("FORMAT_FEATURE_BLIT_DST_BIT");
+    if (4096 & value) strings.push_back("FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT");
+    if (16384 & value) strings.push_back("FORMAT_FEATURE_TRANSFER_SRC_BIT");
+    if (32768 & value) strings.push_back("FORMAT_FEATURE_TRANSFER_DST_BIT");
+    if (131072 & value) strings.push_back("FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT");
+    if (262144 & value) strings.push_back("FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT");
+    if (524288 & value) strings.push_back("FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT");
+    if (1048576 & value) strings.push_back("FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_BIT");
+    if (2097152 & value) strings.push_back("FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT");
+    if (4194304 & value) strings.push_back("FORMAT_FEATURE_DISJOINT_BIT");
+    if (8388608 & value) strings.push_back("FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT");
+    if (65536 & value) strings.push_back("FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_MINMAX_BIT");
+    if (8192 & value) strings.push_back("FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_IMG");
+    if (16777216 & value) strings.push_back("FORMAT_FEATURE_FRAGMENT_DENSITY_MAP_BIT_EXT");
+    return strings;
 }
 void DumpVkFormatFeatureFlags(Printer &p, std::string name, VkFormatFeatureFlags value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkFormatFeatureFlags(p, name, static_cast<VkFormatFeatureFlagBits>(value), width);
-    p.ObjectEnd();
+    auto strings = VkFormatFeatureFlagBitsGetStrings(static_cast<VkFormatFeatureFlagBits>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkFormatFeatureFlagBits(Printer &p, std::string name, VkFormatFeatureFlagBits value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkFormatFeatureFlags(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkFormatFeatureFlagBitsGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
-void DumpVkImageUsageFlags(Printer &p, std::string name, VkImageUsageFlagBits value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (1 & value) p.SetAsType().PrintElement("IMAGE_USAGE_TRANSFER_SRC_BIT");
-    if (2 & value) p.SetAsType().PrintElement("IMAGE_USAGE_TRANSFER_DST_BIT");
-    if (4 & value) p.SetAsType().PrintElement("IMAGE_USAGE_SAMPLED_BIT");
-    if (8 & value) p.SetAsType().PrintElement("IMAGE_USAGE_STORAGE_BIT");
-    if (16 & value) p.SetAsType().PrintElement("IMAGE_USAGE_COLOR_ATTACHMENT_BIT");
-    if (32 & value) p.SetAsType().PrintElement("IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT");
-    if (64 & value) p.SetAsType().PrintElement("IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT");
-    if (128 & value) p.SetAsType().PrintElement("IMAGE_USAGE_INPUT_ATTACHMENT_BIT");
-    if (256 & value) p.SetAsType().PrintElement("IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV");
-    if (512 & value) p.SetAsType().PrintElement("IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT");
+
+std::vector<const char *>VkImageUsageFlagBitsGetStrings(VkImageUsageFlagBits value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("IMAGE_USAGE_TRANSFER_SRC_BIT");
+    if (2 & value) strings.push_back("IMAGE_USAGE_TRANSFER_DST_BIT");
+    if (4 & value) strings.push_back("IMAGE_USAGE_SAMPLED_BIT");
+    if (8 & value) strings.push_back("IMAGE_USAGE_STORAGE_BIT");
+    if (16 & value) strings.push_back("IMAGE_USAGE_COLOR_ATTACHMENT_BIT");
+    if (32 & value) strings.push_back("IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT");
+    if (64 & value) strings.push_back("IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT");
+    if (128 & value) strings.push_back("IMAGE_USAGE_INPUT_ATTACHMENT_BIT");
+    if (256 & value) strings.push_back("IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV");
+    if (512 & value) strings.push_back("IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT");
+    return strings;
 }
 void DumpVkImageUsageFlags(Printer &p, std::string name, VkImageUsageFlags value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkImageUsageFlags(p, name, static_cast<VkImageUsageFlagBits>(value), width);
-    p.ObjectEnd();
+    auto strings = VkImageUsageFlagBitsGetStrings(static_cast<VkImageUsageFlagBits>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkImageUsageFlagBits(Printer &p, std::string name, VkImageUsageFlagBits value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkImageUsageFlags(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkImageUsageFlagBitsGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
-void DumpVkSampleCountFlags(Printer &p, std::string name, VkSampleCountFlagBits value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (1 & value) p.SetAsType().PrintElement("SAMPLE_COUNT_1_BIT");
-    if (2 & value) p.SetAsType().PrintElement("SAMPLE_COUNT_2_BIT");
-    if (4 & value) p.SetAsType().PrintElement("SAMPLE_COUNT_4_BIT");
-    if (8 & value) p.SetAsType().PrintElement("SAMPLE_COUNT_8_BIT");
-    if (16 & value) p.SetAsType().PrintElement("SAMPLE_COUNT_16_BIT");
-    if (32 & value) p.SetAsType().PrintElement("SAMPLE_COUNT_32_BIT");
-    if (64 & value) p.SetAsType().PrintElement("SAMPLE_COUNT_64_BIT");
+
+std::vector<const char *>VkSampleCountFlagBitsGetStrings(VkSampleCountFlagBits value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("SAMPLE_COUNT_1_BIT");
+    if (2 & value) strings.push_back("SAMPLE_COUNT_2_BIT");
+    if (4 & value) strings.push_back("SAMPLE_COUNT_4_BIT");
+    if (8 & value) strings.push_back("SAMPLE_COUNT_8_BIT");
+    if (16 & value) strings.push_back("SAMPLE_COUNT_16_BIT");
+    if (32 & value) strings.push_back("SAMPLE_COUNT_32_BIT");
+    if (64 & value) strings.push_back("SAMPLE_COUNT_64_BIT");
+    return strings;
 }
 void DumpVkSampleCountFlags(Printer &p, std::string name, VkSampleCountFlags value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkSampleCountFlags(p, name, static_cast<VkSampleCountFlagBits>(value), width);
-    p.ObjectEnd();
+    auto strings = VkSampleCountFlagBitsGetStrings(static_cast<VkSampleCountFlagBits>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkSampleCountFlagBits(Printer &p, std::string name, VkSampleCountFlagBits value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkSampleCountFlags(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkSampleCountFlagBitsGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
+
 std::string VkQueueFlagsString(VkQueueFlags value, int width = 0) {
     std::string out;
     bool is_first = true;
@@ -596,207 +599,263 @@ std::string VkQueueFlagsString(VkQueueFlags value, int width = 0) {
     }
     return out;
 }
-void DumpVkMemoryPropertyFlags(Printer &p, std::string name, VkMemoryPropertyFlagBits value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (1 & value) p.SetAsType().PrintElement("MEMORY_PROPERTY_DEVICE_LOCAL_BIT");
-    if (2 & value) p.SetAsType().PrintElement("MEMORY_PROPERTY_HOST_VISIBLE_BIT");
-    if (4 & value) p.SetAsType().PrintElement("MEMORY_PROPERTY_HOST_COHERENT_BIT");
-    if (8 & value) p.SetAsType().PrintElement("MEMORY_PROPERTY_HOST_CACHED_BIT");
-    if (16 & value) p.SetAsType().PrintElement("MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT");
-    if (32 & value) p.SetAsType().PrintElement("MEMORY_PROPERTY_PROTECTED_BIT");
-    if (64 & value) p.SetAsType().PrintElement("MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD");
-    if (128 & value) p.SetAsType().PrintElement("MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD");
+std::vector<const char *>VkMemoryPropertyFlagBitsGetStrings(VkMemoryPropertyFlagBits value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("MEMORY_PROPERTY_DEVICE_LOCAL_BIT");
+    if (2 & value) strings.push_back("MEMORY_PROPERTY_HOST_VISIBLE_BIT");
+    if (4 & value) strings.push_back("MEMORY_PROPERTY_HOST_COHERENT_BIT");
+    if (8 & value) strings.push_back("MEMORY_PROPERTY_HOST_CACHED_BIT");
+    if (16 & value) strings.push_back("MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT");
+    if (32 & value) strings.push_back("MEMORY_PROPERTY_PROTECTED_BIT");
+    if (64 & value) strings.push_back("MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD");
+    if (128 & value) strings.push_back("MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD");
+    return strings;
 }
 void DumpVkMemoryPropertyFlags(Printer &p, std::string name, VkMemoryPropertyFlags value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkMemoryPropertyFlags(p, name, static_cast<VkMemoryPropertyFlagBits>(value), width);
-    p.ObjectEnd();
+    auto strings = VkMemoryPropertyFlagBitsGetStrings(static_cast<VkMemoryPropertyFlagBits>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkMemoryPropertyFlagBits(Printer &p, std::string name, VkMemoryPropertyFlagBits value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkMemoryPropertyFlags(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkMemoryPropertyFlagBitsGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
-void DumpVkMemoryHeapFlags(Printer &p, std::string name, VkMemoryHeapFlagBits value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (1 & value) p.SetAsType().PrintElement("MEMORY_HEAP_DEVICE_LOCAL_BIT");
-    if (2 & value) p.SetAsType().PrintElement("MEMORY_HEAP_MULTI_INSTANCE_BIT");
+
+std::vector<const char *>VkMemoryHeapFlagBitsGetStrings(VkMemoryHeapFlagBits value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("MEMORY_HEAP_DEVICE_LOCAL_BIT");
+    if (2 & value) strings.push_back("MEMORY_HEAP_MULTI_INSTANCE_BIT");
+    return strings;
 }
 void DumpVkMemoryHeapFlags(Printer &p, std::string name, VkMemoryHeapFlags value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkMemoryHeapFlags(p, name, static_cast<VkMemoryHeapFlagBits>(value), width);
-    p.ObjectEnd();
+    auto strings = VkMemoryHeapFlagBitsGetStrings(static_cast<VkMemoryHeapFlagBits>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkMemoryHeapFlagBits(Printer &p, std::string name, VkMemoryHeapFlagBits value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkMemoryHeapFlags(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkMemoryHeapFlagBitsGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
-void DumpVkShaderStageFlags(Printer &p, std::string name, VkShaderStageFlagBits value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (1 & value) p.SetAsType().PrintElement("SHADER_STAGE_VERTEX_BIT");
-    if (2 & value) p.SetAsType().PrintElement("SHADER_STAGE_TESSELLATION_CONTROL_BIT");
-    if (4 & value) p.SetAsType().PrintElement("SHADER_STAGE_TESSELLATION_EVALUATION_BIT");
-    if (8 & value) p.SetAsType().PrintElement("SHADER_STAGE_GEOMETRY_BIT");
-    if (16 & value) p.SetAsType().PrintElement("SHADER_STAGE_FRAGMENT_BIT");
-    if (32 & value) p.SetAsType().PrintElement("SHADER_STAGE_COMPUTE_BIT");
-    if (0x0000001F & value) p.SetAsType().PrintElement("SHADER_STAGE_ALL_GRAPHICS");
-    if (0x7FFFFFFF & value) p.SetAsType().PrintElement("SHADER_STAGE_ALL");
-    if (256 & value) p.SetAsType().PrintElement("SHADER_STAGE_RAYGEN_BIT_NV");
-    if (512 & value) p.SetAsType().PrintElement("SHADER_STAGE_ANY_HIT_BIT_NV");
-    if (1024 & value) p.SetAsType().PrintElement("SHADER_STAGE_CLOSEST_HIT_BIT_NV");
-    if (2048 & value) p.SetAsType().PrintElement("SHADER_STAGE_MISS_BIT_NV");
-    if (4096 & value) p.SetAsType().PrintElement("SHADER_STAGE_INTERSECTION_BIT_NV");
-    if (8192 & value) p.SetAsType().PrintElement("SHADER_STAGE_CALLABLE_BIT_NV");
-    if (64 & value) p.SetAsType().PrintElement("SHADER_STAGE_TASK_BIT_NV");
-    if (128 & value) p.SetAsType().PrintElement("SHADER_STAGE_MESH_BIT_NV");
+
+std::vector<const char *>VkShaderStageFlagBitsGetStrings(VkShaderStageFlagBits value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("SHADER_STAGE_VERTEX_BIT");
+    if (2 & value) strings.push_back("SHADER_STAGE_TESSELLATION_CONTROL_BIT");
+    if (4 & value) strings.push_back("SHADER_STAGE_TESSELLATION_EVALUATION_BIT");
+    if (8 & value) strings.push_back("SHADER_STAGE_GEOMETRY_BIT");
+    if (16 & value) strings.push_back("SHADER_STAGE_FRAGMENT_BIT");
+    if (32 & value) strings.push_back("SHADER_STAGE_COMPUTE_BIT");
+    if (0x0000001F & value) strings.push_back("SHADER_STAGE_ALL_GRAPHICS");
+    if (0x7FFFFFFF & value) strings.push_back("SHADER_STAGE_ALL");
+    if (256 & value) strings.push_back("SHADER_STAGE_RAYGEN_BIT_NV");
+    if (512 & value) strings.push_back("SHADER_STAGE_ANY_HIT_BIT_NV");
+    if (1024 & value) strings.push_back("SHADER_STAGE_CLOSEST_HIT_BIT_NV");
+    if (2048 & value) strings.push_back("SHADER_STAGE_MISS_BIT_NV");
+    if (4096 & value) strings.push_back("SHADER_STAGE_INTERSECTION_BIT_NV");
+    if (8192 & value) strings.push_back("SHADER_STAGE_CALLABLE_BIT_NV");
+    if (64 & value) strings.push_back("SHADER_STAGE_TASK_BIT_NV");
+    if (128 & value) strings.push_back("SHADER_STAGE_MESH_BIT_NV");
+    return strings;
 }
 void DumpVkShaderStageFlags(Printer &p, std::string name, VkShaderStageFlags value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkShaderStageFlags(p, name, static_cast<VkShaderStageFlagBits>(value), width);
-    p.ObjectEnd();
+    auto strings = VkShaderStageFlagBitsGetStrings(static_cast<VkShaderStageFlagBits>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkShaderStageFlagBits(Printer &p, std::string name, VkShaderStageFlagBits value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkShaderStageFlags(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkShaderStageFlagBitsGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
-void DumpVkSubgroupFeatureFlags(Printer &p, std::string name, VkSubgroupFeatureFlagBits value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (1 & value) p.SetAsType().PrintElement("SUBGROUP_FEATURE_BASIC_BIT");
-    if (2 & value) p.SetAsType().PrintElement("SUBGROUP_FEATURE_VOTE_BIT");
-    if (4 & value) p.SetAsType().PrintElement("SUBGROUP_FEATURE_ARITHMETIC_BIT");
-    if (8 & value) p.SetAsType().PrintElement("SUBGROUP_FEATURE_BALLOT_BIT");
-    if (16 & value) p.SetAsType().PrintElement("SUBGROUP_FEATURE_SHUFFLE_BIT");
-    if (32 & value) p.SetAsType().PrintElement("SUBGROUP_FEATURE_SHUFFLE_RELATIVE_BIT");
-    if (64 & value) p.SetAsType().PrintElement("SUBGROUP_FEATURE_CLUSTERED_BIT");
-    if (128 & value) p.SetAsType().PrintElement("SUBGROUP_FEATURE_QUAD_BIT");
-    if (256 & value) p.SetAsType().PrintElement("SUBGROUP_FEATURE_PARTITIONED_BIT_NV");
+
+std::vector<const char *>VkSubgroupFeatureFlagBitsGetStrings(VkSubgroupFeatureFlagBits value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("SUBGROUP_FEATURE_BASIC_BIT");
+    if (2 & value) strings.push_back("SUBGROUP_FEATURE_VOTE_BIT");
+    if (4 & value) strings.push_back("SUBGROUP_FEATURE_ARITHMETIC_BIT");
+    if (8 & value) strings.push_back("SUBGROUP_FEATURE_BALLOT_BIT");
+    if (16 & value) strings.push_back("SUBGROUP_FEATURE_SHUFFLE_BIT");
+    if (32 & value) strings.push_back("SUBGROUP_FEATURE_SHUFFLE_RELATIVE_BIT");
+    if (64 & value) strings.push_back("SUBGROUP_FEATURE_CLUSTERED_BIT");
+    if (128 & value) strings.push_back("SUBGROUP_FEATURE_QUAD_BIT");
+    if (256 & value) strings.push_back("SUBGROUP_FEATURE_PARTITIONED_BIT_NV");
+    return strings;
 }
 void DumpVkSubgroupFeatureFlags(Printer &p, std::string name, VkSubgroupFeatureFlags value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkSubgroupFeatureFlags(p, name, static_cast<VkSubgroupFeatureFlagBits>(value), width);
-    p.ObjectEnd();
+    auto strings = VkSubgroupFeatureFlagBitsGetStrings(static_cast<VkSubgroupFeatureFlagBits>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkSubgroupFeatureFlagBits(Printer &p, std::string name, VkSubgroupFeatureFlagBits value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkSubgroupFeatureFlags(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkSubgroupFeatureFlagBitsGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
-void DumpVkResolveModeFlags(Printer &p, std::string name, VkResolveModeFlagBits value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (0 & value) p.SetAsType().PrintElement("RESOLVE_MODE_NONE");
-    if (1 & value) p.SetAsType().PrintElement("RESOLVE_MODE_SAMPLE_ZERO_BIT");
-    if (2 & value) p.SetAsType().PrintElement("RESOLVE_MODE_AVERAGE_BIT");
-    if (4 & value) p.SetAsType().PrintElement("RESOLVE_MODE_MIN_BIT");
-    if (8 & value) p.SetAsType().PrintElement("RESOLVE_MODE_MAX_BIT");
+
+std::vector<const char *>VkResolveModeFlagBitsGetStrings(VkResolveModeFlagBits value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (0 & value) strings.push_back("RESOLVE_MODE_NONE");
+    if (1 & value) strings.push_back("RESOLVE_MODE_SAMPLE_ZERO_BIT");
+    if (2 & value) strings.push_back("RESOLVE_MODE_AVERAGE_BIT");
+    if (4 & value) strings.push_back("RESOLVE_MODE_MIN_BIT");
+    if (8 & value) strings.push_back("RESOLVE_MODE_MAX_BIT");
+    return strings;
 }
 void DumpVkResolveModeFlags(Printer &p, std::string name, VkResolveModeFlags value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkResolveModeFlags(p, name, static_cast<VkResolveModeFlagBits>(value), width);
-    p.ObjectEnd();
+    auto strings = VkResolveModeFlagBitsGetStrings(static_cast<VkResolveModeFlagBits>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkResolveModeFlagBits(Printer &p, std::string name, VkResolveModeFlagBits value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkResolveModeFlags(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkResolveModeFlagBitsGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
-void DumpVkSurfaceTransformFlagsKHR(Printer &p, std::string name, VkSurfaceTransformFlagBitsKHR value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (1 & value) p.SetAsType().PrintElement("SURFACE_TRANSFORM_IDENTITY_BIT_KHR");
-    if (2 & value) p.SetAsType().PrintElement("SURFACE_TRANSFORM_ROTATE_90_BIT_KHR");
-    if (4 & value) p.SetAsType().PrintElement("SURFACE_TRANSFORM_ROTATE_180_BIT_KHR");
-    if (8 & value) p.SetAsType().PrintElement("SURFACE_TRANSFORM_ROTATE_270_BIT_KHR");
-    if (16 & value) p.SetAsType().PrintElement("SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR");
-    if (32 & value) p.SetAsType().PrintElement("SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR");
-    if (64 & value) p.SetAsType().PrintElement("SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR");
-    if (128 & value) p.SetAsType().PrintElement("SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR");
-    if (256 & value) p.SetAsType().PrintElement("SURFACE_TRANSFORM_INHERIT_BIT_KHR");
+
+std::vector<const char *>VkSurfaceTransformFlagBitsKHRGetStrings(VkSurfaceTransformFlagBitsKHR value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("SURFACE_TRANSFORM_IDENTITY_BIT_KHR");
+    if (2 & value) strings.push_back("SURFACE_TRANSFORM_ROTATE_90_BIT_KHR");
+    if (4 & value) strings.push_back("SURFACE_TRANSFORM_ROTATE_180_BIT_KHR");
+    if (8 & value) strings.push_back("SURFACE_TRANSFORM_ROTATE_270_BIT_KHR");
+    if (16 & value) strings.push_back("SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR");
+    if (32 & value) strings.push_back("SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR");
+    if (64 & value) strings.push_back("SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR");
+    if (128 & value) strings.push_back("SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR");
+    if (256 & value) strings.push_back("SURFACE_TRANSFORM_INHERIT_BIT_KHR");
+    return strings;
 }
 void DumpVkSurfaceTransformFlagsKHR(Printer &p, std::string name, VkSurfaceTransformFlagsKHR value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkSurfaceTransformFlagsKHR(p, name, static_cast<VkSurfaceTransformFlagBitsKHR>(value), width);
-    p.ObjectEnd();
+    auto strings = VkSurfaceTransformFlagBitsKHRGetStrings(static_cast<VkSurfaceTransformFlagBitsKHR>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkSurfaceTransformFlagBitsKHR(Printer &p, std::string name, VkSurfaceTransformFlagBitsKHR value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkSurfaceTransformFlagsKHR(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkSurfaceTransformFlagBitsKHRGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
-void DumpVkCompositeAlphaFlagsKHR(Printer &p, std::string name, VkCompositeAlphaFlagBitsKHR value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (1 & value) p.SetAsType().PrintElement("COMPOSITE_ALPHA_OPAQUE_BIT_KHR");
-    if (2 & value) p.SetAsType().PrintElement("COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR");
-    if (4 & value) p.SetAsType().PrintElement("COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR");
-    if (8 & value) p.SetAsType().PrintElement("COMPOSITE_ALPHA_INHERIT_BIT_KHR");
+
+std::vector<const char *>VkCompositeAlphaFlagBitsKHRGetStrings(VkCompositeAlphaFlagBitsKHR value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("COMPOSITE_ALPHA_OPAQUE_BIT_KHR");
+    if (2 & value) strings.push_back("COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR");
+    if (4 & value) strings.push_back("COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR");
+    if (8 & value) strings.push_back("COMPOSITE_ALPHA_INHERIT_BIT_KHR");
+    return strings;
 }
 void DumpVkCompositeAlphaFlagsKHR(Printer &p, std::string name, VkCompositeAlphaFlagsKHR value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkCompositeAlphaFlagsKHR(p, name, static_cast<VkCompositeAlphaFlagBitsKHR>(value), width);
-    p.ObjectEnd();
+    auto strings = VkCompositeAlphaFlagBitsKHRGetStrings(static_cast<VkCompositeAlphaFlagBitsKHR>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkCompositeAlphaFlagBitsKHR(Printer &p, std::string name, VkCompositeAlphaFlagBitsKHR value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkCompositeAlphaFlagsKHR(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkCompositeAlphaFlagBitsKHRGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
-void DumpVkDeviceGroupPresentModeFlagsKHR(Printer &p, std::string name, VkDeviceGroupPresentModeFlagBitsKHR value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (1 & value) p.SetAsType().PrintElement("DEVICE_GROUP_PRESENT_MODE_LOCAL_BIT_KHR");
-    if (2 & value) p.SetAsType().PrintElement("DEVICE_GROUP_PRESENT_MODE_REMOTE_BIT_KHR");
-    if (4 & value) p.SetAsType().PrintElement("DEVICE_GROUP_PRESENT_MODE_SUM_BIT_KHR");
-    if (8 & value) p.SetAsType().PrintElement("DEVICE_GROUP_PRESENT_MODE_LOCAL_MULTI_DEVICE_BIT_KHR");
+
+std::vector<const char *>VkDeviceGroupPresentModeFlagBitsKHRGetStrings(VkDeviceGroupPresentModeFlagBitsKHR value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("DEVICE_GROUP_PRESENT_MODE_LOCAL_BIT_KHR");
+    if (2 & value) strings.push_back("DEVICE_GROUP_PRESENT_MODE_REMOTE_BIT_KHR");
+    if (4 & value) strings.push_back("DEVICE_GROUP_PRESENT_MODE_SUM_BIT_KHR");
+    if (8 & value) strings.push_back("DEVICE_GROUP_PRESENT_MODE_LOCAL_MULTI_DEVICE_BIT_KHR");
+    return strings;
 }
 void DumpVkDeviceGroupPresentModeFlagsKHR(Printer &p, std::string name, VkDeviceGroupPresentModeFlagsKHR value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkDeviceGroupPresentModeFlagsKHR(p, name, static_cast<VkDeviceGroupPresentModeFlagBitsKHR>(value), width);
-    p.ObjectEnd();
+    auto strings = VkDeviceGroupPresentModeFlagBitsKHRGetStrings(static_cast<VkDeviceGroupPresentModeFlagBitsKHR>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkDeviceGroupPresentModeFlagBitsKHR(Printer &p, std::string name, VkDeviceGroupPresentModeFlagBitsKHR value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkDeviceGroupPresentModeFlagsKHR(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkDeviceGroupPresentModeFlagBitsKHRGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
-void DumpVkToolPurposeFlagsEXT(Printer &p, std::string name, VkToolPurposeFlagBitsEXT value, int width = 0) {
-    if (value == 0) p.PrintElement("None");
-    if (1 & value) p.SetAsType().PrintElement("TOOL_PURPOSE_VALIDATION_BIT_EXT");
-    if (2 & value) p.SetAsType().PrintElement("TOOL_PURPOSE_PROFILING_BIT_EXT");
-    if (4 & value) p.SetAsType().PrintElement("TOOL_PURPOSE_TRACING_BIT_EXT");
-    if (8 & value) p.SetAsType().PrintElement("TOOL_PURPOSE_ADDITIONAL_FEATURES_BIT_EXT");
-    if (16 & value) p.SetAsType().PrintElement("TOOL_PURPOSE_MODIFYING_FEATURES_BIT_EXT");
-    if (32 & value) p.SetAsType().PrintElement("TOOL_PURPOSE_DEBUG_REPORTING_BIT_EXT");
-    if (64 & value) p.SetAsType().PrintElement("TOOL_PURPOSE_DEBUG_MARKERS_BIT_EXT");
-    if (32 & value) p.SetAsType().PrintElement("TOOL_PURPOSE_DEBUG_REPORTING_BIT_EXT");
-    if (64 & value) p.SetAsType().PrintElement("TOOL_PURPOSE_DEBUG_MARKERS_BIT_EXT");
+
+std::vector<const char *>VkToolPurposeFlagBitsEXTGetStrings(VkToolPurposeFlagBitsEXT value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("TOOL_PURPOSE_VALIDATION_BIT_EXT");
+    if (2 & value) strings.push_back("TOOL_PURPOSE_PROFILING_BIT_EXT");
+    if (4 & value) strings.push_back("TOOL_PURPOSE_TRACING_BIT_EXT");
+    if (8 & value) strings.push_back("TOOL_PURPOSE_ADDITIONAL_FEATURES_BIT_EXT");
+    if (16 & value) strings.push_back("TOOL_PURPOSE_MODIFYING_FEATURES_BIT_EXT");
+    if (32 & value) strings.push_back("TOOL_PURPOSE_DEBUG_REPORTING_BIT_EXT");
+    if (64 & value) strings.push_back("TOOL_PURPOSE_DEBUG_MARKERS_BIT_EXT");
+    if (32 & value) strings.push_back("TOOL_PURPOSE_DEBUG_REPORTING_BIT_EXT");
+    if (64 & value) strings.push_back("TOOL_PURPOSE_DEBUG_MARKERS_BIT_EXT");
+    return strings;
 }
 void DumpVkToolPurposeFlagsEXT(Printer &p, std::string name, VkToolPurposeFlagsEXT value, int width = 0) {
     if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkToolPurposeFlagsEXT(p, name, static_cast<VkToolPurposeFlagBitsEXT>(value), width);
-    p.ObjectEnd();
+    auto strings = VkToolPurposeFlagBitsEXTGetStrings(static_cast<VkToolPurposeFlagBitsEXT>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
 }
 void DumpVkToolPurposeFlagBitsEXT(Printer &p, std::string name, VkToolPurposeFlagBitsEXT value, int width = 0) {
-    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
-    p.ObjectStart(name);
-    DumpVkToolPurposeFlagsEXT(p, name, value, width);
-    p.ObjectEnd();
+    auto strings = VkToolPurposeFlagBitsEXTGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
 }
+
+std::vector<const char *>VkSurfaceCounterFlagBitsEXTGetStrings(VkSurfaceCounterFlagBitsEXT value) {
+    std::vector<const char *> strings;
+    if (value == 0) strings.push_back("None");
+    if (1 & value) strings.push_back("SURFACE_COUNTER_VBLANK_EXT");
+    return strings;
+}
+void DumpVkSurfaceCounterFlagsEXT(Printer &p, std::string name, VkSurfaceCounterFlagsEXT value, int width = 0) {
+    if (p.Type() == OutputType::json) { p.PrintKeyValue(name, value); return; }
+    auto strings = VkSurfaceCounterFlagBitsEXTGetStrings(static_cast<VkSurfaceCounterFlagBitsEXT>(value));
+    p.ArrayStart(name, strings.size());
+    for(auto& str : strings){
+        p.SetAsType().PrintString(str);
+    }
+    p.ArrayEnd();
+}
+void DumpVkSurfaceCounterFlagBitsEXT(Printer &p, std::string name, VkSurfaceCounterFlagBitsEXT value, int width = 0) {
+    auto strings = VkSurfaceCounterFlagBitsEXTGetStrings(value);
+    p.PrintKeyString(name, strings.at(0), width);
+}
+
 void DumpVkPhysicalDeviceFeatures(Printer &p, std::string name, VkPhysicalDeviceFeatures &obj) {
     p.ObjectStart(name);
     p.PrintKeyBool("robustBufferAccess", static_cast<bool>(obj.robustBufferAccess), 39);
@@ -1188,7 +1247,7 @@ void DumpVkPhysicalDeviceVulkan12Properties(Printer &p, std::string name, VkPhys
     DumpVkDriverId(p, "driverID", obj.driverID, 52);
     p.PrintKeyString("driverName", obj.driverName, 52);
     p.PrintKeyString("driverInfo", obj.driverInfo, 52);
-    p.PrintKeyValue("conformanceVersion", obj.conformanceVersion, 52);
+    DumpVkConformanceVersion(p, "conformanceVersion", obj.conformanceVersion, 52);
     DumpVkShaderFloatControlsIndependence(p, "denormBehaviorIndependence", obj.denormBehaviorIndependence, 52);
     DumpVkShaderFloatControlsIndependence(p, "roundingModeIndependence", obj.roundingModeIndependence, 52);
     p.PrintKeyBool("shaderSignedZeroInfNanPreserveFloat16", static_cast<bool>(obj.shaderSignedZeroInfNanPreserveFloat16), 52);
@@ -1251,7 +1310,7 @@ void DumpVkPhysicalDeviceDriverProperties(Printer &p, std::string name, VkPhysic
     DumpVkDriverId(p, "driverID", obj.driverID, 18);
     p.PrintKeyString("driverName", obj.driverName, 18);
     p.PrintKeyString("driverInfo", obj.driverInfo, 18);
-    p.PrintKeyValue("conformanceVersion", obj.conformanceVersion, 18);
+    DumpVkConformanceVersion(p, "conformanceVersion", obj.conformanceVersion, 18);
     p.ObjectEnd();
 }
 void DumpVkPhysicalDeviceShaderAtomicInt64Features(Printer &p, std::string name, VkPhysicalDeviceShaderAtomicInt64Features &obj) {

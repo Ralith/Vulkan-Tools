@@ -60,6 +60,7 @@ OPTIONS:
                       specifying the gpu-number associated with the gpu of
                       interest. This number can be determined by running
                       vulkaninfo without any options specified.
+--full-json           Produce a json version of all of vulkaninfo to standard output.
 --show-formats        Display the format properties of each physical device.
                       Note: This option does not affect html or json output;
                       they will always print format properties.

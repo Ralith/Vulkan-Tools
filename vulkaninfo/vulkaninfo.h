@@ -74,6 +74,7 @@
 bool human_readable_output = true;
 bool html_output = false;
 bool json_output = false;
+bool json_full_output = false;
 
 #ifdef _WIN32
 

@@ -64,7 +64,7 @@ std::string VkVersionString(VulkanVersion v) {
     return std::to_string(v.major) + "." + std::to_string(v.minor) + "." + std::to_string(v.patch);
 }
 
-enum class OutputType { text, html, json };
+enum class OutputType { text, html, json, json_full };
 
 class Printer {
    public:
@@ -183,6 +183,12 @@ class Printer {
                 indents++;
                 is_first_item.push(false);
                 break;
+            case (OutputType::json_full):
+                out << "{\n";
+                out << "\t\"Vulkan Instance Version\": \"" << VkVersionString(vulkan_version) << "\"";
+                indents++;
+                is_first_item.push(false);
+                break;
             default:
                 break;
         }
@@ -199,6 +205,7 @@ class Printer {
                 indents -= 3;
                 break;
             case (OutputType::json):
+            case (OutputType::json_full):
                 out << "\n}\n";
                 indents--;
                 is_first_item.pop();
@@ -285,18 +292,28 @@ class Printer {
                 out << "</summary>\n";
                 break;
             case (OutputType::json):
+            case (OutputType::json_full):
                 if (!is_first_item.top()) {
                     out << ",\n";
                 } else {
                     is_first_item.top() = false;
                 }
                 out << std::string(static_cast<size_t>(indents), '\t');
-                // Objects with no name are elements in an array of objects
-                if (object_name == "" || element_index != -1) {
-                    out << "{\n";
-                    element_index = -1;
-                } else {
-                    out << "\"" << object_name << "\": {\n";
+                if (output_type == OutputType::json) {
+                    // Objects with no name are elements in an array of objects
+                    if (object_name == "" || element_index != -1) {
+                        out << "{\n";
+                        element_index = -1;
+                    } else {
+                        out << "\"" << object_name << "\": {\n";
+                    }
+                } else if (output_type == OutputType::json_full) {
+                    if (element_index != -1) {
+                        out << "\"" << object_name << "[" << element_index << "]\": {\n";
+                        element_index = -1;
+                    } else {
+                        out << "\"" << object_name << "\": {\n";
+                    }
                 }
 
                 is_first_item.push(true);
@@ -317,6 +334,7 @@ class Printer {
                 out << std::string(static_cast<size_t>(indents), '\t') << "</details>\n";
                 break;
             case (OutputType::json):
+            case (OutputType::json_full):
                 out << "\n" << std::string(static_cast<size_t>(indents), '\t') << "}";
                 is_first_item.pop();
                 break;
@@ -342,6 +360,7 @@ class Printer {
                 out << "<summary>" << array_name << ": count = <span class='val'>" << element_count << "</span></summary>\n";
                 break;
             case (OutputType::json):
+            case (OutputType::json_full):
                 if (!is_first_item.top()) {
                     out << ",\n";
                 } else {
@@ -367,6 +386,7 @@ class Printer {
                 out << std::string(static_cast<size_t>(indents), '\t') << "</details>\n";
                 break;
             case (OutputType::json):
+            case (OutputType::json_full):
                 out << "\n" << std::string(static_cast<size_t>(indents), '\t') << "]";
                 is_first_item.pop();
                 break;
@@ -410,6 +430,7 @@ class Printer {
                 out << "</summary></details>\n";
                 break;
             case (OutputType::json):
+            case (OutputType::json_full):
                 if (!is_first_item.top()) {
                     out << ",\n";
                 } else {
@@ -429,6 +450,7 @@ class Printer {
                 PrintKeyValue(key, value, min_key_width, value_description);
                 break;
             case (OutputType::json):
+            case (OutputType::json_full):
                 PrintKeyValue(key, std::string("\"") + value + "\"", min_key_width, value_description);
                 break;
             default:
@@ -441,6 +463,7 @@ class Printer {
         switch (output_type) {
             case (OutputType::text):
             case (OutputType::html):
+            case (OutputType::json_full):
                 PrintKeyValue(key, value ? "true" : "false", min_key_width, value_description);
                 break;
             case (OutputType::json):
@@ -476,6 +499,7 @@ class Printer {
                 out << "</summary></details>\n";
                 break;
             case (OutputType::json):
+            case (OutputType::json_full):
                 if (!is_first_item.top()) {
                     out << ",\n";
                 } else {
@@ -487,6 +511,19 @@ class Printer {
                 break;
         }
     }
+    void PrintString(std::string string, std::string value_description = "") {
+        switch (output_type) {
+            case (OutputType::text):
+            case (OutputType::html):
+                PrintElement(string, value_description);
+                break;
+            case (OutputType::json):
+            case (OutputType::json_full):
+                PrintElement("\"" + string + "\"", value_description);
+            default:
+                break;
+        }
+    }
     void PrintExtension(std::string ext_name, uint32_t revision, int min_width = 0) {
         switch (output_type) {
             case (OutputType::text):
@@ -494,12 +531,16 @@ class Printer {
                     << " : extension revision " << revision << "\n";
                 break;
             case (OutputType::html):
-                out << std::string(static_cast<size_t>(indents), '\t') << "<details><summary><span class='type'>" << ext_name
-                    << "</span>" << std::string(min_width - ext_name.size(), ' ') << " : extension revision <span class='val'>"
-                    << revision << "</span></summary></details>\n";
+                out << std::string(static_cast<size_t>(indents), '\t') << "<details><summary>" << DecorateAsType(ext_name)
+                    << std::string(min_width - ext_name.size(), ' ') << " : extension revision "
+                    << DecorateAsValue(std::to_string(revision)) << "</summary></details>\n";
                 break;
             case (OutputType::json):
-
+                break;
+            case (OutputType::json_full):
+                ObjectStart(ext_name);
+                PrintKeyValue("specVersion", revision);
+                ObjectEnd();
                 break;
             default:
                 break;
@@ -520,6 +561,20 @@ class Printer {
             indents--;
             assert(indents >= 0 && "indents cannot go below zero");
         }
+    }
+
+    std::string DecorateAsType(const std::string &input) {
+        if (output_type == OutputType::html)
+            return "<span class='type'>" + input + "</span>";
+        else
+            return input;
+    }
+
+    std::string DecorateAsValue(const std::string &input) {
+        if (output_type == OutputType::html)
+            return "<span class='val'>" + input + "</span>";
+        else
+            return input;
     }
 
    protected:
